@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/ujjwal-kr/go-bucketlist-server/list"
+	"github.com/ujjwal-kr/go-bucketlist-server/task"
 	"github.com/ujjwal-kr/go-bucketlist-server/user"
 )
 
@@ -24,6 +25,10 @@ func setupRoutes(app *fiber.App) {
 	app.Get("/lists/:id", list.GetList)
 	app.Patch("/lists/:id", list.UpdateList)
 	app.Delete("/lists/:id", list.DeleteList)
+
+	app.Post("/tasks", task.PostTask)
+	app.Delete("/tasks/:id", task.DeleteTask)
+
 }
 
 func main() {

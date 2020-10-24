@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/ujjwal-kr/go-bucketlist-server/list"
 	"github.com/ujjwal-kr/go-bucketlist-server/user"
 )
 
@@ -14,10 +15,15 @@ func setupRoutes(app *fiber.App) {
 	app.Get("/", welcome)
 
 	app.Get("/users", user.GetUsers)
-	app.Get("/users/:id", user.GetUser)
+	app.Get("/users/:id", user.GetUser) // gets the lists of the user along with the user
 	app.Post("/auth/login", user.Login)
 	app.Post("/auth/register", user.Register)
 	app.Get("/users/:id/tasks", user.GetTasks)
+
+	app.Post("/lists", list.PostList)
+	app.Get("/lists/:id", list.GetList)
+	app.Patch("/lists/:id", list.UpdateList)
+	app.Delete("/lists/:id", list.DeleteList)
 }
 
 func main() {

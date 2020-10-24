@@ -5,7 +5,7 @@ import (
 )
 
 func GetUser(c *fiber.Ctx) error {
-	return c.SendString("Gets all users")
+	return c.SendString("Gets the lists of the current user")
 }
 
 func GetUsers(c *fiber.Ctx) error {
@@ -13,13 +13,13 @@ func GetUsers(c *fiber.Ctx) error {
 }
 
 func Login(c *fiber.Ctx) error {
-	return c.SendString("Gets all users")
+	return c.SendString("Login Route")
 }
 
 func Register(c *fiber.Ctx) error {
-	return c.SendString("Gets all users")
+	return c.SendString("Register route")
 }
 
 func GetTasks(c *fiber.Ctx) error {
-	return c.SendString("Gets all users")
+	return c.SendString("Gets the tasks of the current user")
 }

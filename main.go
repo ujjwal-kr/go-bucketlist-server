@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -72,6 +73,12 @@ func setupRoutes(app *fiber.App) {
 }
 
 func main() {
+
+	// Connect to the database
+	if err := Connect(); err != nil {
+		log.Fatal(err)
+	}
+
 	app := fiber.New()
 
 	setupRoutes(app)

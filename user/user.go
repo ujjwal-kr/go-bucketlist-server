@@ -17,7 +17,7 @@ func Login(c *fiber.Ctx) error {
 }
 
 func Register(c *fiber.Ctx) error {
-	return c.SendString("Register route")
+	return c.SendString("Register")
 }
 
 func GetTasks(c *fiber.Ctx) error {

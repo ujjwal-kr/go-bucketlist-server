@@ -16,13 +16,6 @@ import (
 
 // MongoInstance contains the Mongo client and database objects
 
-type MongoInstance struct {
-	Client *mongo.Client
-	Db     *mongo.Database
-}
-
-var mg MongoInstance
-
 const dbName = "mybucketlist"
 const mongoURI = "mongodb://localhost:27017/" + dbName
 
@@ -34,15 +27,9 @@ func Connect() error {
 	defer cancel()
 
 	err = client.Connect(ctx)
-	db := client.Database(dbName)
 
 	if err != nil {
 		return err
-	}
-
-	mg = MongoInstance{
-		Client: client,
-		Db:     db,
 	}
 
 	return nil

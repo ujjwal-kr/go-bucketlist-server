@@ -22,6 +22,27 @@ type MongoInstance struct {
 	Db     *mongo.Database
 }
 
+// TYPES
+
+type User struct {
+	ID       string `json:"id,omitempty" bson:"_id,omitempty"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+	TaskCode string `json:"taskCode"`
+}
+
+type Task struct {
+	ID   string `json:"id,omitempty" bson:"_id,omitempty"`
+	Text string `json:"text"`
+	Date string `json:"date"`
+}
+
+type List struct {
+	ID          string `json:"id,omitempty" bson:"_id,omitempty"`
+	Text        string `json:"text"`
+	Description string `json:"description"`
+}
+
 var mg MongoInstance
 
 // Connect configures the MongoDB client and initializes the database connection.
@@ -46,10 +67,6 @@ func Connect() error {
 	return nil
 }
 
-func welcome(c *fiber.Ctx) error {
-	return c.SendString("Helloworld")
-}
-
 func main() {
 
 	// Connect to the database
@@ -69,7 +86,12 @@ func main() {
 	users.Get("/:id", welcome)
 	users.Get("/:id/tasks", welcome)
 
-	auth.Post("/login")
+	auth.Post("/login", welcome)
+	auth.Post("register", welcome)
 
 	app.Listen(":8080")
+}
+
+func welcome(c *fiber.Ctx) error {
+	return c.SendString("Helloworld")
 }

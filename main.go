@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
@@ -90,7 +92,7 @@ func main() {
 	users.Get("/:id/tasks", welcome)
 
 	auth.Post("/login", welcome)
-	auth.Post("register", welcome)
+	auth.Post("/register", Register)
 
 	// Lists Handlers
 
@@ -104,6 +106,36 @@ func main() {
 	tasks.Delete("/", welcome)
 
 	app.Listen(":8080")
+}
+
+// 	Users Func
+
+func Register(c *fiber.Ctx) error {
+	collection := mg.Db.Collection("users")
+	user := new(User)
+	// Parse Body
+	if err := c.BodyParser(user); err != nil {
+		return c.Status(400).SendString(err.Error())
+	}
+
+	username := user.Username
+	query := bson.D{{Key: "username", Value: username}}
+	existingRecord := collection.FindOne(c.Context(), &query)
+
+	existingUser := &User{}
+	existingRecord.Decode(&existingUser)
+	if username == existingUser.Username {
+		return c.Status(500).SendString("not allowed")
+	}
+	user.ID = ""
+	insertionResult, err := collection.InsertOne(c.Context(), user)
+	if err != nil {
+		return c.Status(500).SendString(err.Error())
+	}
+
+	fmt.Println(insertionResult)
+	return c.Status(201).SendString("Created")
+
 }
 
 func welcome(c *fiber.Ctx) error {

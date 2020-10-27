@@ -61,5 +61,15 @@ func main() {
 
 	app.Get("/", welcome)
 
+	users := app.Group("/users")
+	auth := app.Group("/auth")
+
+	// Users Handlers
+	users.Get("/", welcome)
+	users.Get("/:id", welcome)
+	users.Get("/:id/tasks", welcome)
+
+	auth.Post("/login")
+
 	app.Listen(":8080")
 }

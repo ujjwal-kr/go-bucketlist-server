@@ -80,14 +80,28 @@ func main() {
 
 	users := app.Group("/users")
 	auth := app.Group("/auth")
+	lists := app.Group("/lists")
+	tasks := app.Group("/tasks")
 
 	// Users Handlers
+
 	users.Get("/", welcome)
 	users.Get("/:id", welcome)
 	users.Get("/:id/tasks", welcome)
 
 	auth.Post("/login", welcome)
 	auth.Post("register", welcome)
+
+	// Lists Handlers
+
+	lists.Get("/:id", welcome)
+	lists.Post("/", welcome)
+	lists.Delete("/", welcome)
+
+	// Tasks Handlers
+
+	tasks.Post("/", welcome)
+	tasks.Delete("/", welcome)
 
 	app.Listen(":8080")
 }

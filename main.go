@@ -165,7 +165,7 @@ func getUser(c *fiber.Ctx) error {
 	if len(user.ID) < 1 {
 		return c.Status(404).SendString("cant find user")
 	}
-	listQuery := bson.D{{Key: "userId", Value: user.ID}}
+	listQuery := bson.D{{Key: "userid", Value: user.ID}}
 	cursor, err := Listscollection.Find(c.Context(), &listQuery)
 	if err != nil {
 		return c.Status(500).SendString(err.Error())

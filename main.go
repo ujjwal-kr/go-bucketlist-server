@@ -93,12 +93,12 @@ func main() {
 	users.Get("/:id/tasks", welcome)
 
 	auth.Post("/login", welcome)
-	auth.Post("/register", Register)
+	auth.Post("/register", register)
 
 	// Lists Handlers
 
 	lists.Get("/:id", welcome)
-	lists.Post("/", welcome)
+	lists.Post("/", postList)
 	lists.Delete("/", welcome)
 
 	// Tasks Handlers
@@ -111,7 +111,7 @@ func main() {
 
 // 	Users Func
 
-func Register(c *fiber.Ctx) error {
+func register(c *fiber.Ctx) error {
 	collection := mg.Db.Collection("users")
 	user := new(User)
 	// Parse Body
@@ -155,7 +155,7 @@ func getAllUsers(c *fiber.Ctx) error {
 
 //	List Funcs
 
-func PostList(c *fiber.Ctx) error {
+func postList(c *fiber.Ctx) error {
 	collection := mg.Db.Collection("lists")
 	list := new(List)
 

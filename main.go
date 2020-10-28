@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"time"
 
@@ -34,15 +33,17 @@ type User struct {
 }
 
 type Task struct {
-	ID   string `json:"id,omitempty" bson:"_id,omitempty"`
-	Text string `json:"text"`
-	Date string `json:"date"`
+	ID     string `json:"id,omitempty" bson:"_id,omitempty"`
+	Text   string `json:"text"`
+	Date   string `json:"date"`
+	UserId string `json:"userId"`
 }
 
 type List struct {
 	ID          string `json:"id,omitempty" bson:"_id,omitempty"`
 	Text        string `json:"text"`
 	Description string `json:"description"`
+	UserId      string `json:"userId"`
 }
 
 var mg MongoInstance
@@ -114,7 +115,7 @@ func Register(c *fiber.Ctx) error {
 	collection := mg.Db.Collection("users")
 	user := new(User)
 	// Parse Body
-	if err := c.BodyParser(user); err != nil {
+	if err := c.BodyParser(&user); err != nil {
 		return c.Status(400).SendString(err.Error())
 	}
 
@@ -132,10 +133,29 @@ func Register(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
 	}
-
-	fmt.Println(insertionResult)
+	insertionResult.InsertedID = nil
 	return c.Status(201).SendString("Created")
+}
 
+//	List Funcs
+
+func PostList(c *fiber.Ctx) error {
+	collection := mg.Db.Collection("lists")
+	list := new(List)
+
+	// Parse Body
+	if err := c.BodyParser(&list); err != nil {
+		return c.Status(400).SendString(err.Error())
+	}
+
+	list.ID = ""
+
+	insertionResult, err := collection.InsertOne(c.Context(), list)
+	if err != nil {
+		return c.Status(500).SendString(err.Error())
+	}
+	insertionResult.InsertedID = nil
+	return c.Status(201).SendString("Created")
 }
 
 func welcome(c *fiber.Ctx) error {

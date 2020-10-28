@@ -88,7 +88,7 @@ func main() {
 
 	// Users Handlers
 
-	users.Get("/", welcome)
+	users.Get("/", getAllUsers)
 	users.Get("/:id", welcome)
 	users.Get("/:id/tasks", welcome)
 
@@ -133,8 +133,24 @@ func Register(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
 	}
-	insertionResult.InsertedID = nil
-	return c.Status(201).SendString("Created")
+	return c.Status(201).JSON(insertionResult)
+}
+
+func getAllUsers(c *fiber.Ctx) error {
+	collection := mg.Db.Collection("users")
+	query := bson.D{{}}
+	cursor, err := collection.Find(c.Context(), &query)
+	if err != nil {
+		return c.Status(500).SendString(err.Error())
+	}
+	var users []User = make([]User, 0)
+
+	// iterate the cursor and decode the values
+	if err := cursor.All(c.Context(), &users); err != nil {
+		return c.Status(404).SendString("There isnt any")
+	}
+
+	return c.JSON(users)
 }
 
 //	List Funcs
@@ -154,8 +170,7 @@ func PostList(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
 	}
-	insertionResult.InsertedID = nil
-	return c.Status(201).SendString("Created")
+	return c.Status(201).JSON(insertionResult)
 }
 
 func welcome(c *fiber.Ctx) error {

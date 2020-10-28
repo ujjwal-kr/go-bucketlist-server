@@ -89,7 +89,7 @@ func main() {
 	// Users Handlers
 
 	users.Get("/", getAllUsers)
-	users.Get("/:id", welcome)
+	users.Get("/:name", getUser)
 	users.Get("/:id/tasks", welcome)
 
 	auth.Post("/login", welcome)
@@ -151,6 +151,20 @@ func getAllUsers(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(users)
+}
+
+func getUser(c *fiber.Ctx) error {
+	collection := mg.Db.Collection("users")
+	username := c.Params("name")
+	query := bson.D{{Key: "username", Value: username}}
+
+	userRecord := collection.FindOne(c.Context(), &query)
+	user := &User{}
+	userRecord.Decode(&user)
+	// if len(user.ID) < 1 {
+	// 	return c.Status(404).SendString("cant find user")
+	// }
+	return c.JSON(user)
 }
 
 //	List Funcs

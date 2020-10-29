@@ -103,7 +103,7 @@ func main() {
 
 	// Tasks Handlers
 
-	tasks.Post("/", welcome)
+	tasks.Post("/", postList)
 	tasks.Delete("/", welcome)
 
 	app.Listen(":8080")
@@ -226,12 +226,30 @@ func postList(c *fiber.Ctx) error {
 	}
 
 	list.ID = ""
-
 	insertionResult, err := collection.InsertOne(c.Context(), list)
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
 	}
 	return c.Status(201).JSON(insertionResult)
+}
+
+// Task Funcs
+
+func postTask(c *fiber.Ctx) error {
+	collection := mg.Db.Collection("tasks")
+	task := &Task{}
+
+	// Parse Body
+	if err := c.BodyParser(&task); err != nil {
+		return c.Status(400).SendString(err.Error())
+	}
+	task.ID = ""
+	insertionResult, err := collection.InsertOne(c.Context(), task)
+	if err != nil {
+		return c.Status(500).SendString(err.Error())
+	}
+	return c.Status(201).JSON(insertionResult)
+
 }
 
 func welcome(c *fiber.Ctx) error {

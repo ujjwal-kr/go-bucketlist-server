@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
@@ -97,7 +98,7 @@ func main() {
 
 	// Lists Handlers
 
-	lists.Get("/:id", welcome)
+	lists.Get("/:id", getList)
 	lists.Post("/", postList)
 	lists.Delete("/", welcome)
 
@@ -231,6 +232,22 @@ func postList(c *fiber.Ctx) error {
 		return c.Status(500).SendString(err.Error())
 	}
 	return c.Status(201).JSON(insertionResult)
+}
+
+func getList(c *fiber.Ctx) error {
+	collection := mg.Db.Collection("lists")
+	listID, err := primitive.ObjectIDFromHex(c.Params("id"))
+	if err != nil {
+		return c.Status(404).SendString("Not found")
+	}
+	query := bson.D{{Key: "_id", Value: listID}}
+	listRecord := collection.FindOne(c.Context(), &query)
+	list := &List{}
+	listRecord.Decode(&list)
+	if len(list.ID) < 1 {
+		return c.Status(404).SendString("Not found")
+	}
+	return c.JSON(list)
 }
 
 // Task Funcs

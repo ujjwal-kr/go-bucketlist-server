@@ -181,6 +181,34 @@ func getUser(c *fiber.Ctx) error {
 	})
 }
 
+func getUserTask(c *fiber.Ctx) error {
+	Userscollection := mg.Db.Collection("users")
+	Taskscollection := mg.Db.Collection("tasks")
+	username := c.Params("name")
+	userQuery := bson.D{{Key: "username", Value: username}}
+
+	userRecord := Userscollection.FindOne(c.Context(), &userQuery)
+	user := &User{}
+	userRecord.Decode(&user)
+	if len(user.ID) < 1 {
+		return c.Status(404).SendString("cant find user")
+	}
+	taskQuery := bson.D{{Key: "userid", Value: user.ID}}
+	cursor, err := Taskscollection.Find(c.Context(), &taskQuery)
+	if err != nil {
+		return c.Status(500).SendString(err.Error())
+	}
+	var tasks []Task = make([]Task, 0)
+	if err := cursor.All(c.Context(), &tasks); err != nil {
+		return c.Status(500).SendString("internal err")
+	}
+
+	return c.Status(200).JSON(&fiber.Map{
+		"user":  user,
+		"tasks": tasks,
+	})
+}
+
 //	List Funcs
 
 func postList(c *fiber.Ctx) error {

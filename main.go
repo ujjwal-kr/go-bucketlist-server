@@ -90,7 +90,7 @@ func main() {
 
 	users.Get("/", getAllUsers)
 	users.Get("/:name", getUser)
-	users.Get("/:id/tasks", welcome)
+	users.Get("/:name/tasks", getUserTasks)
 
 	auth.Post("/login", welcome)
 	auth.Post("/register", register)
@@ -181,7 +181,7 @@ func getUser(c *fiber.Ctx) error {
 	})
 }
 
-func getUserTask(c *fiber.Ctx) error {
+func getUserTasks(c *fiber.Ctx) error {
 	Userscollection := mg.Db.Collection("users")
 	Taskscollection := mg.Db.Collection("tasks")
 	username := c.Params("name")
@@ -193,6 +193,11 @@ func getUserTask(c *fiber.Ctx) error {
 	if len(user.ID) < 1 {
 		return c.Status(404).SendString("cant find user")
 	}
+
+	if string(c.Request().Header.Peek("taskCode")) != user.TaskCode {
+		return c.Status(403).SendString("UNAUTHORIZED")
+	}
+
 	taskQuery := bson.D{{Key: "userid", Value: user.ID}}
 	cursor, err := Taskscollection.Find(c.Context(), &taskQuery)
 	if err != nil {

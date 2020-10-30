@@ -104,7 +104,7 @@ func main() {
 
 	// Tasks Handlers
 
-	tasks.Post("/", postList)
+	tasks.Post("/", postTask)
 	tasks.Delete("/", welcome)
 
 	app.Listen(":8080")

@@ -175,7 +175,8 @@ func getUser(c *fiber.Ctx) error {
 	if err := cursor.All(c.Context(), &lists); err != nil {
 		return c.Status(500).SendString("internal err")
 	}
-
+	user.Password = ""
+	user.TaskCode = ""
 	return c.Status(200).JSON(&fiber.Map{
 		"user":  user,
 		"lists": lists,

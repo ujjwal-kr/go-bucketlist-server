@@ -148,6 +148,25 @@ func register(c *fiber.Ctx) error {
 	return c.Status(201).JSON(insertionResult)
 }
 
+func login(c *fiber.Ctx) error {
+	collection := mg.Db.Collection("users")
+	user := &User{}
+	if err := c.BodyParser(&user); err != nil {
+		return c.Status(400).SendString("INVALID")
+	}
+	query := bson.D{{Key: "username", Value: user.Username}}
+	userRecord := collection.FindOne(c.Context(), &query)
+	existingUser := &User{}
+	userRecord.Decode(&existingUser)
+	if len(existingUser.ID) < 1 {
+		return c.Status(404).SendString("cant find user")
+	}
+	if existingUser.Password != user.Password {
+		return c.Status(403).SendString("UNAUTHORIZED")
+	}
+	return c.SendString("Correct Password")
+}
+
 func getAllUsers(c *fiber.Ctx) error {
 	collection := mg.Db.Collection("users")
 	query := bson.D{{}}

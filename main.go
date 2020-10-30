@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -115,9 +116,20 @@ func main() {
 var Key = []byte("secret")
 
 func protected(c *fiber.Ctx) error {
-	authHeader := string(c.Request().Header.Peek("authorization"))
-	if len(authHeader) > 1 {
-		return c.Next()
+	tokenString := string(c.Request().Header.Peek("authorization"))
+	if len(tokenString) > 1 {
+		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			}
+			return []byte(Key), nil
+		})
+		if err != nil {
+			return c.Status(403).SendString("UNAUTHORIZED")
+		}
+		if token.Valid {
+			return c.Next()
+		}
 	}
 	return c.Status(403).SendString("UNAUTHORIZED")
 }

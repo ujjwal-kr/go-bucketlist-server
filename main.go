@@ -38,14 +38,14 @@ type Task struct {
 	ID     string `json:"id,omitempty" bson:"_id,omitempty"`
 	Text   string `json:"text"`
 	Date   string `json:"date"`
-	UserId string `json:"userId"`
+	UserId string `json:"userid"`
 }
 
 type List struct {
 	ID          string `json:"id,omitempty" bson:"_id,omitempty"`
 	Text        string `json:"text"`
 	Description string `json:"description"`
-	UserId      string `json:"userId"`
+	UserId      string `json:"userid"`
 }
 
 var mg MongoInstance
@@ -178,7 +178,10 @@ func login(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(403).SendString("UNAUTHORIZED")
 	}
-	return c.Status(300).SendString(tokenString)
+	return c.Status(201).JSON(&fiber.Map{
+		"name":  user.Username,
+		"token": tokenString,
+	})
 }
 
 func getAllUsers(c *fiber.Ctx) error {

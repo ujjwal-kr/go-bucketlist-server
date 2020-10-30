@@ -100,7 +100,7 @@ func main() {
 
 	lists.Get("/:id", getList)
 	lists.Post("/", postList)
-	lists.Delete("/", welcome)
+	lists.Delete("/", deleteList)
 
 	// Tasks Handlers
 
@@ -248,6 +248,21 @@ func getList(c *fiber.Ctx) error {
 		return c.Status(404).SendString("Not found")
 	}
 	return c.JSON(list)
+}
+
+func deleteList(c *fiber.Ctx) error {
+	collection := mg.Db.Collection("lists")
+	listID, err := primitive.ObjectIDFromHex(c.Params("id"))
+	if err != nil {
+		return c.Status(404).SendString("Not found")
+	}
+	query := bson.D{{Key: "_id", Value: listID}}
+
+	res, err := collection.DeleteOne(c.Context(), &query)
+	if err != nil || res.DeletedCount < 1 {
+		return c.Status(404).SendString("Not found")
+	}
+	return c.SendString("Deleted")
 }
 
 // Task Funcs

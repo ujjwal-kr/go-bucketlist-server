@@ -105,7 +105,7 @@ func main() {
 	// Tasks Handlers
 
 	tasks.Post("/", postTask)
-	tasks.Delete("/", welcome)
+	tasks.Delete("/", deleteTask)
 
 	app.Listen(":8080")
 }
@@ -282,6 +282,20 @@ func postTask(c *fiber.Ctx) error {
 	}
 	return c.Status(201).JSON(insertionResult)
 
+}
+
+func deleteTask(c *fiber.Ctx) error {
+	collection := mg.Db.Collection("tasks")
+	taskID, err := primitive.ObjectIDFromHex(c.Params("id"))
+	if err != nil {
+		return c.Status(404).SendString("Not found")
+	}
+	query := bson.D{{Key: "_id", Value: taskID}}
+	res, err := collection.DeleteOne(c.Context(), &query)
+	if err != nil || res.DeletedCount < 1 {
+		return c.Status(404).SendString("Not found")
+	}
+	return c.SendString("Deleted")
 }
 
 func welcome(c *fiber.Ctx) error {

@@ -10,6 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -93,7 +94,7 @@ func main() {
 	users.Get("/:name", getUser)
 	users.Get("/:name/tasks", getUserTasks)
 
-	auth.Post("/login", welcome)
+	auth.Post("/login", login)
 	auth.Post("/register", register)
 
 	// Lists Handlers
@@ -154,9 +155,11 @@ func login(c *fiber.Ctx) error {
 	if err := c.BodyParser(&user); err != nil {
 		return c.Status(400).SendString("INVALID")
 	}
+
 	query := bson.D{{Key: "username", Value: user.Username}}
 	userRecord := collection.FindOne(c.Context(), &query)
 	existingUser := &User{}
+
 	userRecord.Decode(&existingUser)
 	if len(existingUser.ID) < 1 {
 		return c.Status(404).SendString("cant find user")
@@ -164,7 +167,18 @@ func login(c *fiber.Ctx) error {
 	if existingUser.Password != user.Password {
 		return c.Status(403).SendString("UNAUTHORIZED")
 	}
-	return c.SendString("Correct Password")
+
+	token := jwt.New(jwt.SigningMethodHS256)
+	claims := token.Claims.(jwt.MapClaims)
+
+	claims["username"] = user.Username
+	claims["exp"] = time.Now().Add(time.Hour * 1000).Unix()
+
+	tokenString, err := token.SignedString(Key)
+	if err != nil {
+		return c.Status(403).SendString("UNAUTHORIZED")
+	}
+	return c.Status(300).SendString(tokenString)
 }
 
 func getAllUsers(c *fiber.Ctx) error {

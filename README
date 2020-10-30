@@ -3,6 +3,7 @@ API WRITTEN IN GOlang
 This is the API server for `ujjwal-kr/bucketlist` react app.
 
 Written In - GOlang
+
 Tech Used-
   1. MongoDB
   2. JWT Auth

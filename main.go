@@ -99,7 +99,7 @@ func main() {
 	// Lists Handlers
 
 	lists.Get("/:id", getList)
-	lists.Post("/", postList)
+	lists.Post("/", protected, postList)
 	lists.Delete("/", deleteList)
 
 	// Tasks Handlers
@@ -108,6 +108,17 @@ func main() {
 	tasks.Delete("/", deleteTask)
 
 	app.Listen(":8080")
+}
+
+//	Auth Middlewares
+var Key = []byte("secret")
+
+func protected(c *fiber.Ctx) error {
+	authHeader := string(c.Request().Header.Peek("authorization"))
+	if len(authHeader) > 1 {
+		return c.Next()
+	}
+	return c.Status(403).SendString("UNAUTHORIZED")
 }
 
 // 	Users Func

@@ -113,6 +113,7 @@ func main() {
 }
 
 //	Auth Middlewares
+
 var Key = []byte("secret")
 
 func protected(c *fiber.Ctx) error {
@@ -225,6 +226,8 @@ func getAllUsers(c *fiber.Ctx) error {
 	return c.JSON(users)
 }
 
+// Get the specific user with username and returns the lists
+
 func getUser(c *fiber.Ctx) error {
 	Userscollection := mg.Db.Collection("users")
 	Listscollection := mg.Db.Collection("lists")
@@ -253,6 +256,8 @@ func getUser(c *fiber.Ctx) error {
 		"lists": lists,
 	})
 }
+
+// Gets the user and its task, but requires to input "taskCode" header of user
 
 func getUserTasks(c *fiber.Ctx) error {
 	Userscollection := mg.Db.Collection("users")

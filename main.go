@@ -29,10 +29,11 @@ type MongoInstance struct {
 // TYPES
 
 type User struct {
-	ID       string `json:"id,omitempty" bson:"_id,omitempty"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-	TaskCode string `json:"taskCode"`
+	ID        string `json:"id,omitempty" bson:"_id,omitempty"`
+	Username  string `json:"username"`
+	Password  string `json:"password"`
+	TaskCode  string `json:"taskCode"`
+	EntryCode string `json:"entryCode"`
 }
 
 type Task struct {
@@ -148,6 +149,10 @@ func register(c *fiber.Ctx) error {
 		return c.Status(400).SendString(err.Error())
 	}
 
+	if user.EntryCode != "secret" {
+		return c.Status(500).SendString("not allowed")
+	}
+
 	username := user.Username
 	query := bson.D{{Key: "username", Value: username}}
 	existingRecord := collection.FindOne(c.Context(), &query)
@@ -158,6 +163,7 @@ func register(c *fiber.Ctx) error {
 		return c.Status(500).SendString("not allowed")
 	}
 	user.ID = ""
+	user.EntryCode = ""
 	insertionResult, err := collection.InsertOne(c.Context(), user)
 	if err != nil {
 		return c.Status(500).SendString(err.Error())

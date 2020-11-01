@@ -13,6 +13,7 @@ import (
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 // MongoInstance contains the Mongo client and database objects
@@ -82,6 +83,7 @@ func main() {
 	}
 
 	app := fiber.New()
+	app.Use(cors.New())
 
 	app.Get("/", welcome)
 

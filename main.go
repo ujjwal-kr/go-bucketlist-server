@@ -187,7 +187,7 @@ func login(c *fiber.Ctx) error {
 	claims := token.Claims.(jwt.MapClaims)
 
 	claims["username"] = user.Username
-	claims["exp"] = time.Now().Add(time.Hour * 1000).Unix()
+	claims["exp"] = time.Now().Add(time.Hour * 2000).Unix()
 
 	tokenString, err := token.SignedString(Key)
 	if err != nil {
@@ -199,6 +199,8 @@ func login(c *fiber.Ctx) error {
 	})
 }
 
+// Public Endpoint, Gets all the users and sanitizes the sensitive info
+
 func getAllUsers(c *fiber.Ctx) error {
 	collection := mg.Db.Collection("users")
 	query := bson.D{{}}
@@ -206,11 +208,18 @@ func getAllUsers(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
 	}
-	var users []User = make([]User, 0)
-
+	var records []User = make([]User, 0)
 	// iterate the cursor and decode the values
-	if err := cursor.All(c.Context(), &users); err != nil {
+	if err := cursor.All(c.Context(), &records); err != nil {
 		return c.Status(404).SendString("There isnt any")
+	}
+	var users []User = make([]User, 0)
+	for i, s := range records {
+		s.Password = ""
+		s.TaskCode = ""
+		fmt.Println(i, s)
+		users = append(users, s)
+		fmt.Println(users)
 	}
 
 	return c.JSON(users)

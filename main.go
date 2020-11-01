@@ -93,7 +93,7 @@ func main() {
 
 	users.Get("/", getAllUsers)
 	users.Get("/:name", getUser)
-	users.Get("/:name/tasks", getUserTasks)
+	users.Get("/:name/tasks", protected, getUserTasks)
 
 	auth.Post("/login", login)
 	auth.Post("/register", register)
@@ -102,12 +102,12 @@ func main() {
 
 	lists.Get("/:id", getList)
 	lists.Post("/", protected, postList)
-	lists.Delete("/", deleteList)
+	lists.Delete("/", protected, deleteList)
 
 	// Tasks Handlers
 
-	tasks.Post("/", postTask)
-	tasks.Delete("/", deleteTask)
+	tasks.Post("/", protected, postTask)
+	tasks.Delete("/", protected, deleteTask)
 
 	app.Listen(":8080")
 }
@@ -118,6 +118,7 @@ var Key = []byte("secret")
 func protected(c *fiber.Ctx) error {
 	tokenString := string(c.Request().Header.Peek("authorization"))
 	if len(tokenString) > 1 {
+		// gets the token based on the token string and verifies the signature with a private key
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])

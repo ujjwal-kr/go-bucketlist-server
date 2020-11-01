@@ -117,9 +117,10 @@ var Key = []byte("secret")
 
 func protected(c *fiber.Ctx) error {
 	tokenString := string(c.Request().Header.Peek("authorization"))
+	claims := jwt.MapClaims{}
 	if len(tokenString) > 1 {
 		// gets the token based on the token string and verifies the signature with a private key
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 			}
@@ -129,6 +130,7 @@ func protected(c *fiber.Ctx) error {
 			return c.Status(403).SendString("UNAUTHORIZED")
 		}
 		if token.Valid {
+			c.Locals("userId", claims["username"])
 			return c.Next()
 		}
 	}

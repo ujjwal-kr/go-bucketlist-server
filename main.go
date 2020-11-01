@@ -130,7 +130,7 @@ func protected(c *fiber.Ctx) error {
 			return c.Status(403).SendString("UNAUTHORIZED")
 		}
 		if token.Valid {
-			c.Locals("userId", claims["username"])
+			c.Locals("userid", claims["username"])
 			return c.Next()
 		}
 	}
@@ -289,6 +289,11 @@ func postList(c *fiber.Ctx) error {
 		return c.Status(400).SendString(err.Error())
 	}
 
+	// Check Locals
+	if c.Locals("userId") != list.UserId {
+		return c.Status(403).SendString("UNAUTHORIZED")
+	}
+
 	list.ID = ""
 	insertionResult, err := collection.InsertOne(c.Context(), list)
 	if err != nil {
@@ -338,13 +343,16 @@ func postTask(c *fiber.Ctx) error {
 	if err := c.BodyParser(&task); err != nil {
 		return c.Status(400).SendString(err.Error())
 	}
+	// Check Locals
+	if c.Locals("userid") != task.UserId {
+		return c.Status(403).SendString("UNAUTHORIZED")
+	}
 	task.ID = ""
 	insertionResult, err := collection.InsertOne(c.Context(), task)
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
 	}
 	return c.Status(201).JSON(insertionResult)
-
 }
 
 func deleteTask(c *fiber.Ctx) error {

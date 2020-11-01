@@ -326,6 +326,14 @@ func deleteList(c *fiber.Ctx) error {
 	}
 	query := bson.D{{Key: "_id", Value: listID}}
 
+	itemRecord := collection.FindOne(c.Context(), bson.D{{}})
+	item := &List{}
+	itemRecord.Decode(&item)
+
+	if c.Locals("userid") != item.UserId {
+		return c.Status(403).SendString("UNAUTHORIZED")
+	}
+
 	res, err := collection.DeleteOne(c.Context(), &query)
 	if err != nil || res.DeletedCount < 1 {
 		return c.Status(404).SendString("Not found")
@@ -361,6 +369,15 @@ func deleteTask(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(404).SendString("Not found")
 	}
+
+	itemRecord := collection.FindOne(c.Context(), bson.D{{}})
+	item := &Task{}
+	itemRecord.Decode(&item)
+
+	if c.Locals("userid") != item.UserId {
+		return c.Status(403).SendString("UNAUTHORIZED")
+	}
+
 	query := bson.D{{Key: "_id", Value: taskID}}
 	res, err := collection.DeleteOne(c.Context(), &query)
 	if err != nil || res.DeletedCount < 1 {

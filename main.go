@@ -202,8 +202,10 @@ func login(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(403).SendString("UNAUTHORIZED")
 	}
+	fmt.Println(user)
 	return c.Status(201).JSON(&fiber.Map{
-		"name":  user.Username,
+		"id":    existingUser.ID,
+		"name":  existingUser.Username,
 		"token": tokenString,
 	})
 }
@@ -226,9 +228,8 @@ func getAllUsers(c *fiber.Ctx) error {
 	for i, s := range records {
 		s.Password = ""
 		s.TaskCode = ""
-		fmt.Println(i, s)
 		users = append(users, s)
-		fmt.Println(users)
+		fmt.Println(i)
 	}
 
 	return c.JSON(users)

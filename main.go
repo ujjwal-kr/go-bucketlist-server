@@ -202,7 +202,6 @@ func login(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(403).SendString("UNAUTHORIZED")
 	}
-	fmt.Println(user)
 	return c.Status(201).JSON(&fiber.Map{
 		"id":    existingUser.ID,
 		"name":  existingUser.Username,

@@ -100,6 +100,7 @@ func main() {
 
 	auth.Post("/login", login)
 	auth.Post("/register", register)
+	auth.Get("/check", protected, checkAuth)
 
 	// Lists Handlers
 
@@ -298,6 +299,10 @@ func getUserTasks(c *fiber.Ctx) error {
 		"user":  user,
 		"tasks": tasks,
 	})
+}
+
+func checkAuth(c *fiber.Ctx) error {
+	return c.JSON(&fiber.Map{"message": "Seems Alrighty"})
 }
 
 //	List Funcs

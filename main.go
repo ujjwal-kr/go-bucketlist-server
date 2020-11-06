@@ -94,7 +94,7 @@ func main() {
 
 	// Users Handlers
 
-	users.Get("/", getAllUsers)
+	users.Get("/", protected, getAllUsers)
 	users.Get("/:name", getUser)
 	users.Get("/:name/tasks", protected, getUserTasks)
 
@@ -210,7 +210,7 @@ func login(c *fiber.Ctx) error {
 	})
 }
 
-// Public Endpoint, Gets all the users and sanitizes the sensitive info
+// Gets all the users and sanitizes the sensitive info
 
 func getAllUsers(c *fiber.Ctx) error {
 	collection := mg.Db.Collection("users")

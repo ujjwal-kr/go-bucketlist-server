@@ -249,7 +249,7 @@ func getUser(c *fiber.Ctx) error {
 	if len(user.ID) < 1 {
 		return c.Status(404).SendString("cant find user")
 	}
-	listQuery := bson.D{{Key: "userid", Value: user.ID}}
+	listQuery := bson.D{{Key: "userid", Value: user.Username}}
 	cursor, err := Listscollection.Find(c.Context(), &listQuery)
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
@@ -285,7 +285,7 @@ func getUserTasks(c *fiber.Ctx) error {
 		return c.Status(403).SendString("UNAUTHORIZED")
 	}
 
-	taskQuery := bson.D{{Key: "userid", Value: user.ID}}
+	taskQuery := bson.D{{Key: "userid", Value: user.Username}}
 	cursor, err := Taskscollection.Find(c.Context(), &taskQuery)
 	if err != nil {
 		return c.Status(500).SendString(err.Error())
@@ -315,18 +315,17 @@ func postList(c *fiber.Ctx) error {
 	if err := c.BodyParser(&list); err != nil {
 		return c.Status(400).SendString(err.Error())
 	}
-
+	fmt.Println(c.Locals("userid"), list.UserId)
 	// Check Locals
-	if c.Locals("userId") != list.UserId {
-		return c.Status(403).SendString("UNAUTHORIZED")
+	if c.Locals("userid") == list.UserId {
+		list.ID = ""
+		insertionResult, err := collection.InsertOne(c.Context(), list)
+		if err != nil {
+			return c.Status(500).SendString(err.Error())
+		}
+		return c.Status(201).JSON(insertionResult)
 	}
-
-	list.ID = ""
-	insertionResult, err := collection.InsertOne(c.Context(), list)
-	if err != nil {
-		return c.Status(500).SendString(err.Error())
-	}
-	return c.Status(201).JSON(insertionResult)
+	return c.Status(403).SendString("UNAUTHORIZEDdd")
 }
 
 func getList(c *fiber.Ctx) error {

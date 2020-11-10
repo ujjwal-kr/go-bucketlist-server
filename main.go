@@ -64,7 +64,7 @@ func Connect() error {
 	defer cancel()
 
 	err = client.Connect(ctx)
-	db := client.Database(dbName)
+	db := client.Database("list")
 
 	if err != nil {
 		return err

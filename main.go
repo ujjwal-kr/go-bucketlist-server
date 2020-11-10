@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -113,7 +114,9 @@ func main() {
 	tasks.Post("/", protected, postTask)
 	tasks.Delete("/", protected, deleteTask)
 
-	app.Listen(":8080")
+	// app.Listen(":8080")
+	port := os.Getenv("PORT")
+	app.Listen(":" + port)
 }
 
 //	Auth Middlewares

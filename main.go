@@ -19,8 +19,10 @@ import (
 
 // MongoInstance contains the Mongo client and database objects
 
-const dbName = "mybucketlist"
-const mongoURI = "mongodb://localhost:27017/" + dbName
+// const dbName = "mybucketlist"
+// const mongoURI = "mongodb://localhost:27017/" + dbName
+
+const mongoURI = "mongodb+srv://ujjwal:secretpassword@mybucket.wnews.mongodb.net/list?retryWrites=true&w=majority"
 
 // MongoInstance contains the Mongo client and database objects
 type MongoInstance struct {

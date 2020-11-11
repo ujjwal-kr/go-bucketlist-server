@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
+
+	// "os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -19,10 +20,10 @@ import (
 
 // MongoInstance contains the Mongo client and database objects
 
-// const dbName = "mybucketlist"
-// const mongoURI = "mongodb://localhost:27017/" + dbName
+const dbName = "mybucketlist"
+const mongoURI = "mongodb://localhost:27017/" + dbName
 
-const mongoURI = "mongodb+srv://ujjwal:secretpassword@mybucket.wnews.mongodb.net/list?retryWrites=true&w=majority"
+// const mongoURI = "mongodb+srv://ujjwal:secretpassword@mybucket.wnews.mongodb.net/list?retryWrites=true&w=majority"
 
 // MongoInstance contains the Mongo client and database objects
 type MongoInstance struct {
@@ -64,7 +65,7 @@ func Connect() error {
 	defer cancel()
 
 	err = client.Connect(ctx)
-	db := client.Database("list")
+	db := client.Database(dbName)
 
 	if err != nil {
 		return err
@@ -117,8 +118,8 @@ func main() {
 	tasks.Delete("/", protected, deleteTask)
 
 	// app.Listen(":8080")
-	port := os.Getenv("PORT")
-	app.Listen(":" + port)
+	// port := os.Getenv("PORT")
+	app.Listen(":8080")
 }
 
 //	Auth Middlewares
@@ -282,6 +283,7 @@ func getUserTasks(c *fiber.Ctx) error {
 	userRecord := Userscollection.FindOne(c.Context(), &userQuery)
 	user := &User{}
 	userRecord.Decode(&user)
+	user.Password = ""
 	if len(user.ID) < 1 {
 		return c.Status(404).SendString("cant find user")
 	}
@@ -289,6 +291,7 @@ func getUserTasks(c *fiber.Ctx) error {
 	if string(c.Request().Header.Peek("taskCode")) != user.TaskCode {
 		return c.Status(403).SendString("UNAUTHORIZED")
 	}
+	user.TaskCode = ""
 
 	taskQuery := bson.D{{Key: "userid", Value: user.Username}}
 	cursor, err := Taskscollection.Find(c.Context(), &taskQuery)

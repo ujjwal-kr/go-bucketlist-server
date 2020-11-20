@@ -115,7 +115,7 @@ func main() {
 	// Tasks Handlers
 
 	tasks.Post("/", protected, postTask)
-	tasks.Delete("/", protected, deleteTask)
+	tasks.Delete("/:id", protected, deleteTask)
 
 	// app.Listen(":8080")
 	// port := os.Getenv("PORT")

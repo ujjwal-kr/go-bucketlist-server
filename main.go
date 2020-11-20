@@ -110,7 +110,7 @@ func main() {
 
 	lists.Get("/:id", getList)
 	lists.Post("/", protected, postList)
-	lists.Delete("/", protected, deleteList)
+	lists.Delete("/:id", protected, deleteList)
 
 	// Tasks Handlers
 

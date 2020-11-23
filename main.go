@@ -23,7 +23,7 @@ import (
 const dbName = "mybucketlist"
 const mongoURI = "mongodb://localhost:27017/" + dbName
 
-// const mongoURI = "mongodb+srv://ujjwal:secretpassword@mybucket.wnews.mongodb.net/list?retryWrites=true&w=majority"
+// const mongoURI = os.Getenv("MONGO")
 
 // MongoInstance contains the Mongo client and database objects
 type MongoInstance struct {
@@ -117,16 +117,15 @@ func main() {
 	tasks.Post("/", protected, postTask)
 	tasks.Delete("/:id", protected, deleteTask)
 
-	// app.Listen(":8080")
 	// port := os.Getenv("PORT")
 	app.Listen(":8080")
 }
 
 //	Auth Middlewares
 
-var Key = []byte("secret")
-
 func protected(c *fiber.Ctx) error {
+	// var Key = []byte(os.Getenv("SECRET"))
+	var Key = []byte("secret")
 	tokenString := string(c.Request().Header.Peek("authorization"))
 	claims := jwt.MapClaims{}
 	if len(tokenString) > 1 {
@@ -157,6 +156,10 @@ func register(c *fiber.Ctx) error {
 	if err := c.BodyParser(&user); err != nil {
 		return c.Status(400).SendString(err.Error())
 	}
+
+	// if user.EntryCode != os.Getenv("REGISTER") {
+	// 	return c.Status(500).SendString("not allowed")
+	// }
 
 	if user.EntryCode != "secret" {
 		return c.Status(500).SendString("not allowed")
@@ -205,7 +208,9 @@ func login(c *fiber.Ctx) error {
 	claims["username"] = user.Username
 	claims["exp"] = time.Now().Add(time.Hour * 2000).Unix()
 
-	tokenString, err := token.SignedString(Key)
+	// tokenString, err := token.SignedString(os.Getenv("JWT"))
+	tokenString, err := token.SignedString("secret")
+
 	if err != nil {
 		return c.Status(403).SendString("UNAUTHORIZED")
 	}

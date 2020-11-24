@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	// "os"
+	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -21,9 +21,10 @@ import (
 // MongoInstance contains the Mongo client and database objects
 
 const dbName = "mybucketlist"
-const mongoURI = "mongodb://localhost:27017/" + dbName
 
-// const mongoURI = os.Getenv("MONGO")
+// const mongoURI = "mongodb://localhost:27017/" + dbName
+
+var mongoURI = os.Getenv("MONGO")
 
 // MongoInstance contains the Mongo client and database objects
 type MongoInstance struct {
@@ -117,15 +118,16 @@ func main() {
 	tasks.Post("/", protected, postTask)
 	tasks.Delete("/:id", protected, deleteTask)
 
-	// port := os.Getenv("PORT")
-	app.Listen(":8080")
+	port := os.Getenv("PORT")
+	app.Listen(":" + port)
+	// app.Listen(":8080")
 }
 
 //	Auth Middlewares
 
 func protected(c *fiber.Ctx) error {
-	// var Key = []byte(os.Getenv("SECRET"))
-	var Key = []byte("secret")
+	var Key = []byte(os.Getenv("SECRET"))
+	// var Key = []byte("secret")
 	tokenString := string(c.Request().Header.Peek("authorization"))
 	claims := jwt.MapClaims{}
 	if len(tokenString) > 1 {
@@ -157,13 +159,13 @@ func register(c *fiber.Ctx) error {
 		return c.Status(400).SendString(err.Error())
 	}
 
-	// if user.EntryCode != os.Getenv("REGISTER") {
-	// 	return c.Status(500).SendString("not allowed")
-	// }
-
-	if user.EntryCode != "secret" {
+	if user.EntryCode != os.Getenv("REGISTER") {
 		return c.Status(500).SendString("not allowed")
 	}
+
+	// if user.EntryCode != "secret" {
+	// 	return c.Status(500).SendString("not allowed")
+	// }
 
 	username := user.Username
 	query := bson.D{{Key: "username", Value: username}}
@@ -207,8 +209,8 @@ func login(c *fiber.Ctx) error {
 
 	claims["username"] = user.Username
 	claims["exp"] = time.Now().Add(time.Hour * 2000).Unix()
-	// var Key = []byte(os.Getenv("SECRET"))
-	var Key = []byte("secret")
+	var Key = []byte(os.Getenv("SECRET"))
+	// var Key = []byte("secret")
 	tokenString, err := token.SignedString(Key)
 
 	if err != nil {

@@ -207,12 +207,12 @@ func login(c *fiber.Ctx) error {
 
 	claims["username"] = user.Username
 	claims["exp"] = time.Now().Add(time.Hour * 2000).Unix()
-
-	// tokenString, err := token.SignedString(os.Getenv("JWT"))
-	tokenString, err := token.SignedString("secret")
+	// var Key = []byte(os.Getenv("SECRET"))
+	var Key = []byte("secret")
+	tokenString, err := token.SignedString(Key)
 
 	if err != nil {
-		return c.Status(403).SendString("UNAUTHORIZED")
+		return c.Status(403).SendString("UNAUTHORIZED 1")
 	}
 	return c.Status(201).JSON(&fiber.Map{
 		"id":    existingUser.ID,
